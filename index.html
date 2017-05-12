@@ -1,0 +1,75 @@
+<input type="submit" id="file-submit" name="">
+<button type="button" id="stop">Stop</button>
+<video autoplay="" controls></video>
+
+<script type="text/javascript" src = "/socket.io/socket.io.js"></script>
+<script src="/jquery"></script>
+
+<script type="text/javascript">
+	var socket = io();
+	let query = decodeURIComponent(window.location.href).replace(/.*\?/, "").split("&").reduce((map, v) => {let temp = v.split("=");map[temp[0]] = temp[1]; return map}, {});
+	console.log(query);
+	socket.emit("init", {
+		listingId: query.listingId
+	})
+</script>
+
+<script type="text/javascript">
+	let webcamStarted = false;
+
+	function _handleRecording(mediaStream){
+		var mediaRecorder = new MediaRecorder(mediaStream);
+		$("video").attr("src", window.URL.createObjectURL(mediaStream))[0].play();
+	    mediaRecorder.onstart = function(e) {
+	        this.chunks = [];
+	    };
+	    mediaRecorder.ondataavailable = function(e) {
+	    	// var blob = new Blob(e.data);
+			// ss.createBlobReadStream(blob).pipe(stream);
+
+			socket.emit("send", {
+				streamData: e.data,
+				listingId: query.listingId,
+				name: query.name,
+				url: query.url
+			});
+	    };
+
+	    // Start recording
+	    mediaRecorder.start(2000);
+	    return mediaRecorder;
+	}
+
+	function handleVideo(mediaStream){
+		videoStream = mediaStream.getVideoTracks()[0];
+		mediaRecorder = _handleRecording(mediaStream);
+		window.stop = function(){
+			mediaRecorder.stop();
+			videoStream.stop();
+		}
+	}
+
+
+
+	function handleError(err){
+		console.log("error", err);
+	}
+
+	let video = true;
+	let audio = true;
+	$("#file-submit").on("click", toggleWebcam);
+	function toggleWebcam(){
+		if(webcamStarted){
+			return;
+		}
+		navigator.getUserMedia({video, audio}, handleVideo, handleError);
+	}
+
+	$("#stop").on("click", () => {
+		socket.emit("live-stream-stop", {
+			listingId: query.listingId
+		});
+		window.stop();
+		// setTimeout(window.close, 4000);
+	})
+</script>
