@@ -1,5 +1,6 @@
 <input type="submit" id="file-submit" name="">
 <button type="button" id="stop">Stop</button>
+<div id="comments"></div>
 <video autoplay="" controls></video>
 
 <script type="text/javascript" src = "/socket.io/socket.io.js"></script>
@@ -8,9 +9,14 @@
 <script type="text/javascript">
 	var socket = io();
 	let query = decodeURIComponent(window.location.href).replace(/.*\?/, "").split("&").reduce((map, v) => {let temp = v.split("=");map[temp[0]] = temp[1]; return map}, {});
-	console.log(query);
 	socket.emit("init", {
 		listingId: query.listingId
+	})
+
+	socket.on("comment", (data) => {
+		console.log(data);
+		$("#comments").append($(`<p>${data.comment}</p>`));
+		// enter code here
 	})
 </script>
 
