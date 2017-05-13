@@ -1,83 +1,145 @@
-<input type="submit" id="file-submit" name="">
-<button type="button" id="stop">Stop</button>
-<div id="comments"></div>
-<video autoplay="" controls></video>
-
-<script type="text/javascript" src = "/socket.io/socket.io.js"></script>
-<script src="/jquery"></script>
-
-<script type="text/javascript">
-	var socket = io();
-	let query = decodeURIComponent(window.location.href).replace(/.*\?/, "").split("&").reduce((map, v) => {let temp = v.split("=");map[temp[0]] = temp[1]; return map}, {});
-	socket.emit("init", {
-		listingId: query.listingId
-	})
-
-	socket.on("comment", (data) => {
-		console.log(data);
-		$("#comments").append($(`<p>${data.comment}</p>`));
-		// enter code here
-	})
-</script>
-
-<script type="text/javascript">
-	let webcamStarted = false;
-
-	function _handleRecording(mediaStream){
-		var options = {mimeType: 'video/webm; codecs=vp9'};
-		var mediaRecorder = new MediaRecorder(mediaStream, options);
-		$("video").attr("src", window.URL.createObjectURL(mediaStream))[0].play();
-	    mediaRecorder.onstart = function(e) {
-	        this.chunks = [];
-	    };
-	    mediaRecorder.ondataavailable = function(e) {
-	    	// var blob = new Blob(e.data);
-			// ss.createBlobReadStream(blob).pipe(stream);
-
-			socket.emit("send", {
-				streamData: e.data,
-				listingId: query.listingId,
-				name: query.name,
-				url: query.url
-			});
-	    };
-
-	    // Start recording
-	    mediaRecorder.start(4000);
-	    return mediaRecorder;
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="minimum-scale=1.0, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title></title>
+	<style type="text/css">
+	.comments {
+	    max-height: 300px;
+	    overflow: auto;
+	    span {
+	        color: #666;
+	    }
+	    p {
+	        max-width: 70%;
+	        margin: 15px 5px;
+	        border: solid 1px #ccc;
+	        border-radius: 4px;
+	        padding: 10px;
+	        color: #333;
+	        position: relative;
+	        background-color: #eee;
+	    }
 	}
-
-	function handleVideo(mediaStream){
-		videoStream = mediaStream.getVideoTracks()[0];
-		mediaRecorder = _handleRecording(mediaStream);
-		window.stop = function(){
-			mediaRecorder.stop();
-			videoStream.stop();
-			window.close();
-		}
+	.cbtn {
+	    float: right;
 	}
-
-
-
-	function handleError(err){
-		console.log("error", err);
+	.inputext {
+	    width: 70%;
+	    border: solid 1px #ddd;
+	    height: 40px;
+	    margin: 0px 5px;
 	}
+	.submitBtn{
 
-	let video = true;
-	let audio = true;
-	$("#file-submit").on("click", toggleWebcam);
-	function toggleWebcam(){
-		if(webcamStarted){
-			return;
-		}
-		navigator.getUserMedia({video, audio}, handleVideo, handleError);
 	}
+	.stopBtn{
 
-	$("#stop").on("click", () => {
-		socket.emit("live-stream-stop", {
+	}.btnv2-p {
+    background-color: #E71C28;
+    color: #fff !important;
+    border: none;
+}
+	.btnv2 {
+    display: inline-block;
+    padding: 6px 25px;
+    max-height: 38px;
+    border-radius: 25px;
+    color: #E71C28;
+    font-size: 16px;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+	</style>
+</head>
+<body>
+	
+	<video autoplay="" controls></video>
+	<div>
+		<input class="submitBtn btnv2 btnv2-p" type="submit" id="file-submit" name="">
+		<button class="stopBtn btnv2 btnv2-p" type="button" id="stop">Stop</button>
+	</div>
+	<div id="comments"></div>
+	<script type="text/javascript" src = "/socket.io/socket.io.js"></script>
+	<script src="/jquery"></script>
+
+	<script type="text/javascript">
+		var socket = io();
+		let query = decodeURIComponent(window.location.href).replace(/.*\?/, "").split("&").reduce((map, v) => {let temp = v.split("=");map[temp[0]] = temp[1]; return map}, {});
+		socket.emit("init", {
 			listingId: query.listingId
-		});
-		window.stop();
-		// setTimeout(window.close, 4000);
-	})
-</script>
+		})
+
+		socket.on("comment", (data) => {
+			console.log(data);
+			$("#comments").append($(`<p>${data.comment}</p>`));
+			// enter code here
+		})
+	</script>
+
+	<script type="text/javascript">
+		let webcamStarted = false;
+
+		function _handleRecording(mediaStream){
+			var options = {mimeType: 'video/webm; codecs=vp9'};
+			var mediaRecorder = new MediaRecorder(mediaStream, options);
+			$("video").attr("src", window.URL.createObjectURL(mediaStream))[0].play();
+		    mediaRecorder.onstart = function(e) {
+		        this.chunks = [];
+		    };
+		    mediaRecorder.ondataavailable = function(e) {
+		    	// var blob = new Blob(e.data);
+				// ss.createBlobReadStream(blob).pipe(stream);
+
+				socket.emit("send", {
+					streamData: e.data,
+					listingId: query.listingId,
+					name: query.name,
+					url: query.url
+				});
+		    };
+
+		    // Start recording
+		    mediaRecorder.start(4000);
+		    return mediaRecorder;
+		}
+
+		function handleVideo(mediaStream){
+			videoStream = mediaStream.getVideoTracks()[0];
+			mediaRecorder = _handleRecording(mediaStream);
+			window.stop = function(){
+				mediaRecorder.stop();
+				videoStream.stop();
+				window.close();
+			}
+		}
+
+
+
+		function handleError(err){
+			console.log("error", err);
+		}
+
+		let video = true;
+		let audio = true;
+		$("#file-submit").on("click", toggleWebcam);
+		function toggleWebcam(){
+			if(webcamStarted){
+				return;
+			}
+			navigator.getUserMedia({video, audio}, handleVideo, handleError);
+		}
+
+		$("#stop").on("click", () => {
+			socket.emit("live-stream-stop", {
+				listingId: query.listingId
+			});
+			window.stop();
+			// setTimeout(window.close, 4000);
+		})
+	</script>
+</body>
+</html>
