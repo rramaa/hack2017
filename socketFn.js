@@ -5,7 +5,8 @@ var path = require("path");
 
 module.exports = function(socket, io, ss){
 	socket.on('send', function(data) {
-		var filename = data.listingId + ".mp4";
+		socket.listingId = data.listingId;
+		var filename = data.listingId;
 		let fsStream = fs.appendFile(filename, data.streamData, (err, su) => {
 			if(err){
 				console.log("error", err);
@@ -20,7 +21,7 @@ module.exports = function(socket, io, ss){
 	});
 
 	socket.on("init", (data) => {
-		var filename = data.listingId + ".mp4";
+		var filename = data.listingId;
 		fs.unlink(filename, (err) => {
 			if(err){
 				console.log(err);
@@ -31,5 +32,12 @@ module.exports = function(socket, io, ss){
 
 	socket.on("buyer", (data) => {
 		socket.join("buyers");
+	});
+
+	socket.on("disconnect", () => {
+		let data = {
+			listingId: socket.listingId
+		};
+		io.emit("live-stream-stop", data);
 	})
 }

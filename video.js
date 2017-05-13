@@ -2,15 +2,39 @@
 let fs      = require('fs')
 let path    = require('path');
 
+
+module.exports.check = function(req, res, next){
+	let file = req.params.filename;
+
+	fs.stat(file, function(err, stats) {
+		if(err){
+			return res.send({
+				statusCode: "2XX",
+				data: false
+			})
+		} else {
+			return res.send({
+				statusCode: "2XX",
+				data: true
+			})
+		}
+	})
+}
+
+
+
+
+
+
 //
 //	Stream the video
 //
-module.exports =  function(req, res, next) {
+module.exports.stream =  function(req, res, next) {
 
 	//
 	//	1.	Path to the movie to stream
 	//
-	let file = req.params.filename + ".mp4";
+	let file = req.params.filename;
 
 	//
 	//	2.	Get meta information from the file. In this case we are interested

@@ -18,3 +18,47 @@
 	// socket.emit("buyer");
 	socket.on("live-stream-init", _updateSrc);
 </script>
+
+<!-- <script type="text/javascript">
+	let initial = false, queue = [];
+	let mediaSource = new MediaSource();
+	$("video").attr("src", URL.createObjectURL(mediaSource));
+	mediaSource.addEventListener('sourceopen', sourceOpen);
+	function sourceOpen(){
+		var sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs=vp9');
+		sourceBuffer.addEventListener('update', function() { // Note: Have tried 'updateend'
+		    if (queue.length > 0 && !sourceBuffer.updating) {
+		      	sourceBuffer.appendBuffer(queue.shift());
+		    }
+		});
+		sourceBuffer.addEventListener('updateend', () => {
+			if (queue.length > 0 && !sourceBuffer.updating) {
+		      	sourceBuffer.appendBuffer(queue.shift());
+		    }
+		})
+		function _startStreamingProcess(data){
+			var buf = new Uint8Array(data);
+			if (sourceBuffer.updating || queue.length > 0) {
+		      	queue.push(buf);
+		    } else {
+		      	sourceBuffer.appendBuffer(buf);
+		    }
+			// sourceBuffer.appendBuffer(buf);
+		}
+		function _updateSrc(data){
+			// if(!initial){
+				// console.log("updating");
+				// initial = true;
+				// $("video").attr("src", `/video/${data.listingId}`)[0].play();
+			// } else {
+				_startStreamingProcess(data.streamData);
+			// }
+		}
+
+		var socket = io();
+		// socket.emit("buyer");
+		socket.on("live-stream-init", _updateSrc);
+	}
+</script>
+
+ -->

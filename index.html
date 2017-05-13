@@ -18,7 +18,8 @@
 	let webcamStarted = false;
 
 	function _handleRecording(mediaStream){
-		var mediaRecorder = new MediaRecorder(mediaStream);
+		var options = {mimeType: 'video/webm; codecs=vp9'};
+		var mediaRecorder = new MediaRecorder(mediaStream, options);
 		$("video").attr("src", window.URL.createObjectURL(mediaStream))[0].play();
 	    mediaRecorder.onstart = function(e) {
 	        this.chunks = [];
@@ -36,7 +37,7 @@
 	    };
 
 	    // Start recording
-	    mediaRecorder.start(2000);
+	    mediaRecorder.start(4000);
 	    return mediaRecorder;
 	}
 
@@ -46,6 +47,7 @@
 		window.stop = function(){
 			mediaRecorder.stop();
 			videoStream.stop();
+			window.close();
 		}
 	}
 

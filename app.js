@@ -19,7 +19,9 @@ app.get("/jquery", (req, res, next) => {
 	res.sendFile(path.join(__dirname, "jquery.js"));
 });
 
-app.get("/video/:filename", video)
+app.get("/video/:filename", video.stream);
+
+app.get("/check-available/:filename", video.check);
 
 var server = http.createServer(app);
 
@@ -32,3 +34,7 @@ server.listen(port, () => {
 		// socketFn(socket, io, ss);
 	})
 });
+
+process.on("uncaughtException", (err) => {
+	console.log(err);
+})
