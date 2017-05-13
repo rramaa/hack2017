@@ -7,10 +7,12 @@
 	.comments {
 	    max-height: 300px;
 	    overflow: auto;
-	    span {
+	    
+	}
+	.comments span {
 	        color: #666;
 	    }
-	    p {
+	    .comments p {
 	        max-width: 70%;
 	        margin: 15px 5px;
 	        border: solid 1px #ccc;
@@ -20,7 +22,6 @@
 	        position: relative;
 	        background-color: #eee;
 	    }
-	}
 	.cbtn {
 	    float: right;
 	}
@@ -62,7 +63,7 @@
 		<input class="submitBtn btnv2 btnv2-p" type="submit" id="file-submit" name="">
 		<button class="stopBtn btnv2 btnv2-p" type="button" id="stop">Stop</button>
 	</div>
-	<div id="comments"></div>
+	<div id="comments" class="comments"></div>
 	<script type="text/javascript" src = "/socket.io/socket.io.js"></script>
 	<script src="/jquery"></script>
 
